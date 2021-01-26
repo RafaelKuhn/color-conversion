@@ -8,16 +8,16 @@ const reader = readline.createInterface({
 });
 
 const inputColorFormatString = `\nselect color input format\n
-     <format>    |                      <example input>                         |
-_________________|______________________________________________________________|
-  [1] -> RGB 1   | '0.46, 0.02, 0.96' or  '0.46,0.02,0.96'  or '0.46 0.02 0.96' |
-  [2] -> RGB 255 | '119, 7, 247'      or  '119,7,247'       or '119 7 247'      |
-  [3] -> HEX     | '#7707F7'          or  '7707F7'                              |
-  [4] -> HSV     | ('100, 100, 100)'                                            |\n
+     <format>    |                      <example input>                      |
+_________________|___________________________________________________________|
+  [1] -> RGB 1   | 0.46, 0.02, 0.96  or  0.46,0.02,0.96  or  0.46 0.02 0.96  |
+  [2] -> RGB 255 |    119, 7, 247    or     119,7,247    or     119 7 247    |
+  [3] -> HEX     |      #7707F7      or       7707F7                         |
+  [4] -> HSV/HSB |   360, 100, 100   or                                      |\n
    `
 ;
 
-const floatPrecision = 4;
+const floatPrecision = 2;
 
 function inputColorString(formatIndex) {
     return(`\ninput color with format ${ColorTypes[formatIndex]}\n\n   `
@@ -56,12 +56,12 @@ function sanitizeColorFromInput(type, input) {
   let asTriplet = function() { console.log(`'asTriplet' has no function assigned`);}
 
   console.log('\n');
+  let splitInput;
   switch (type) {
     case 'RGB1':
     case 'RGB255':
       console.log(`sanitizing ${input} with RGB type`);
       input.trim();
-      let splitInput;
       if (input.includes(', ')) {
         splitInput =  input.split(', ');
       } else if (input.includes(',')) {
@@ -80,30 +80,45 @@ function sanitizeColorFromInput(type, input) {
       }
       break;
       
-      case 'HEX':
-        console.log(`sanitizing ${input} with HEXADECIMAL type`);
-        input.trim();
-        if (input.includes('#')) {
-          input = input.substr(1, 6);
-        }
+    case 'HEX':
+      console.log(`sanitizing ${input} with HEXADECIMAL type`);
+      input.trim();
+      if (input.includes('#')) {
+        input = input.substr(1, 6);
+      }
         
-        color.hexValue = input;
-        asTriplet = function () {
-          return [input.substr(0,2), input.substr(2,2), input.substr(4,2)];
-        }
+      color.hexValue = input;
+      asTriplet = function () {
+        return [input.substr(0,2), input.substr(2,2), input.substr(4,2)];
+      }
       break;
     
     case 'HSV':
       console.log(`sanitizing ${input} with HSV type`);
-      throw new Error('Not implemented');
+      input.trim();
+      if (input.includes(', ')) {
+        splitInput =  input.split(', ');
+      } else if (input.includes(',')) {
+        splitInput =  input.split(',');
+      } else if (input.includes(' ')) {
+        splitInput =  input.split(' ');
+      } else {
+        console.log(`input ${input} does not contain separators <, > <,> or < >`);
+      }
+
+      color.h = splitInput[0];
+      color.s = splitInput[1];
+      color.v = splitInput[2];
+      asTriplet = function () {
+        return [color.h, color.s, color.v];
+      }
       break;
 
     default:
       throw new Error('color type not found when sanitizing')
   }
-  
+
   color.asTriplet = asTriplet;
-  
   return color;
 }
 
@@ -114,7 +129,7 @@ function outputAllColorFormats(color) {
   let hsvColor;
   switch (color.type) {
     case 'RGB1':
-      throw new Error('Not implemented');
+      outputAllRgb1(color);
       break;
 
     case 'RGB255':
@@ -130,7 +145,8 @@ function outputAllColorFormats(color) {
       break;
 
     case 'HSV':
-      console.log('WIP');
+      rgb1Color = allFactories.RGB1(floatPrecision).fromHSV(color.h, color.s, color.v );
+      outputAllRgb1(rgb1Color);
       break;
       
     default:

@@ -29,21 +29,51 @@ function rgb1Factory(floatingPointPrecision = 4) {
   
       return fromRGB255(r, g, b);
     }
-  
+    /**
+     * 
+     * @param {number} hue hue is in degrees (0° to 359º)
+     * @param {number} saturation percentage of saturation (0 to 100)
+     * @param {number} value percentage of value or brightness (0 to 100)
+     */
     function fromHSV(hue, saturation, value) {
-      const rgb1 = {};
-  
-      if (saturation == 0)
-      {
-        rgb1.r = hsv.v;
-        rgb1.g = hsv.v;
-        rgb1.b = hsv.v;
-        
-        return rgb1;
+      const rgb1Color = {};
+      if (hue > 360) {
+          hue = hue % 360;
       }
-  
-  
-    }
+
+	  hue        /= 60;
+	  saturation /= 100;
+	  value      /= 100;
+	  const hueClass = Math.floor(hue) % 6;
+
+	  const f = hue - Math.floor(hue);
+	  const p = (value * (1 - saturation)).toFixed(floatingPointPrecision);
+	  const q = (value * (1 - (saturation * f))).toFixed(floatingPointPrecision);
+	  const t = (value * (1 - (saturation * (1 - f)))).toFixed(floatingPointPrecision);
+
+	  switch (hueClass) {
+		case 0:
+          rgb1Color.r = value; rgb1Color.g = t; rgb1Color.b = p;
+          break;
+		case 1:
+          rgb1Color.r = q; rgb1Color.g = value; rgb1Color.b = p;
+          break;
+		case 2:
+          rgb1Color.r = p; rgb1Color.g = value; rgb1Color.b = t;
+          break;
+		case 3:
+          rgb1Color.r = p; rgb1Color.g = q; rgb1Color.b = value;
+          break;
+		case 4:
+          rgb1Color.r = t; rgb1Color.g = p; rgb1Color.b = value;
+          break;
+		case 5:
+          rgb1Color.r = value; rgb1Color.g = p; rgb1Color.b = q;
+          break;
+      }
+      
+      return rgb1Color;
+    };
     
     return { fromRGB255, fromHEX, fromHSV };
   }
