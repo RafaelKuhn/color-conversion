@@ -7,7 +7,7 @@ const reader = readline.createInterface({
   output: process.stdout
 });
 
-const inputColorFormatString = `\nselect color input format\n
+const inputColorFormatString = `\n[prompt] select color input format\n
      <format>    |                      <example input>                      |
 _________________|___________________________________________________________|
   [1] -> RGB 1   | 0.46, 0.02, 0.96  or  0.46,0.02,0.96  or  0.46 0.02 0.96  |
@@ -20,7 +20,7 @@ _________________|___________________________________________________________|
 const floatPrecision = 2;
 
 function inputColorString(formatIndex) {
-    return(`\ninput color with format ${ColorTypes[formatIndex]}\n\n   `
+    return(`\n[prompt] input color with format ${ColorTypes[formatIndex]}\n\n   `
   );
 } 
 
@@ -60,7 +60,7 @@ function sanitizeColorFromInput(type, input) {
   switch (type) {
     case 'RGB1':
     case 'RGB255':
-      console.log(`sanitizing ${input} with RGB type`);
+      promptSanitizing(input, type);
       input.trim();
       if (input.includes(', ')) {
         splitInput =  input.split(', ');
@@ -81,7 +81,7 @@ function sanitizeColorFromInput(type, input) {
       break;
       
     case 'HEX':
-      console.log(`sanitizing ${input} with HEXADECIMAL type`);
+      promptSanitizing(input, type);
       input.trim();
       if (input.includes('#')) {
         input = input.substr(1, 6);
@@ -94,7 +94,7 @@ function sanitizeColorFromInput(type, input) {
       break;
     
     case 'HSV':
-      console.log(`sanitizing ${input} with HSV type`);
+      promptSanitizing(input, type);
       input.trim();
       if (input.includes(', ')) {
         splitInput =  input.split(', ');
@@ -121,6 +121,9 @@ function sanitizeColorFromInput(type, input) {
   color.asTriplet = asTriplet;
   return color;
 }
+function promptSanitizing(input, colorType) {
+  console.log(`[prompt] sanitizing ${input} with ${colorType} type`);
+}
 
 function outputAllColorFormats(color) {
   let rgb1Color;
@@ -129,29 +132,32 @@ function outputAllColorFormats(color) {
   let hsvColor;
   switch (color.type) {
     case 'RGB1':
-      outputAllRgb1(color);
+      rgb1Color = color;
+      
       break;
 
     case 'RGB255':
       rgb1Color = allFactories.RGB1(floatPrecision).fromRGB255(color.r, color.g, color.b)
-      outputAllRgb1(rgb1Color);
 
       break;
 
     case 'HEX':
       rgb1Color = allFactories.RGB1(floatPrecision).fromHEX(color.hexValue);
-      outputAllRgb1(rgb1Color);
 
       break;
 
     case 'HSV':
       rgb1Color = allFactories.RGB1(floatPrecision).fromHSV(color.h, color.s, color.v );
-      outputAllRgb1(rgb1Color);
+      
+
       break;
       
     default:
       throw new Error('color type not found when outputting');
   }
+  // TODO: check if user wants to output a json file or just graphically
+  outputAllRgb1(rgb1Color);
+
 }
 
 function outputAllRgb1(color) {
