@@ -1,6 +1,6 @@
 const { exit }  = require("process");
 const readline  = require("readline");
-const { ColorTypes, allFactories, RGB1, RGB255, HEX, HSV } = require("./color_factory.js");
+const { ColorTypes, allFactories } = require("./color_factory.js");
 
 const reader = readline.createInterface({
   input: process.stdin,
@@ -8,12 +8,16 @@ const reader = readline.createInterface({
 });
 
 const inputColorFormatString = `\nselect color input format\n
-     format           example input
-  [1] -> RGB 1    '(0 - 1)'
-  [2] -> RGB 255  '(119, 7, 247)' or '119, 7, 247' or '119 7 247'
-  [3] -> HEX      '#7707F7' or '7707F7'
-  [4] -> HSV      ('100, 100, 100)'\n\n   `;
+     <format>    |                      <example input>                         |
+_________________|______________________________________________________________|
+  [1] -> RGB 1   | '0.46, 0.02, 0.96' or  '0.46,0.02,0.96'  or '0.46 0.02 0.96' |
+  [2] -> RGB 255 | '119, 7, 247'      or  '119,7,247'       or '119 7 247'      |
+  [3] -> HEX     | '#7707F7'          or  '7707F7'                              |
+  [4] -> HSV     | ('100, 100, 100)'                                            |\n
+   `
+;
 
+const floatPrecision = 4;
 
 function inputColorString(formatIndex) {
     return(`\ninput color with format ${ColorTypes[formatIndex]}\n\n   `
@@ -37,10 +41,9 @@ function askForColor() {
     
     reader.question(inputColorString(colorTypeIndex), function(input) {
       reader.close();
-      const color = sanitizeColorFromInput(colorType, input);
+      const inputColor = sanitizeColorFromInput(colorType, input);
 
-
-      outputAllColorFormats(color);
+      outputAllColorFormats(inputColor);
     });
   });
 }
@@ -52,11 +55,23 @@ function sanitizeColorFromInput(type, input) {
 
   let asTriplet = function() { console.log(`'asTriplet' has no function assigned`);}
 
+  console.log('\n');
   switch (type) {
     case 'RGB1':
     case 'RGB255':
-      const splitInput = input.split(' ');
-      console.log('with RGB type');
+      console.log(`sanitizing ${input} with RGB type`);
+      input.trim();
+      let splitInput;
+      if (input.includes(', ')) {
+        splitInput =  input.split(', ');
+      } else if (input.includes(',')) {
+        splitInput =  input.split(',');
+      } else if (input.includes(' ')) {
+        splitInput =  input.split(' ');
+      } else {
+        console.log(`input ${input} does not contain separators <, > <,> or < >`);
+      }
+      
       color.r = splitInput[0];
       color.g = splitInput[1];
       color.b = splitInput[2];  
@@ -66,20 +81,25 @@ function sanitizeColorFromInput(type, input) {
       break;
       
       case 'HEX':
-        console.log('with HEXADECIMAL type');
-        color.hex = input;
+        console.log(`sanitizing ${input} with HEXADECIMAL type`);
+        input.trim();
+        if (input.includes('#')) {
+          input = input.substr(1, 6);
+        }
+        
+        color.hexValue = input;
         asTriplet = function () {
           return [input.substr(0,2), input.substr(2,2), input.substr(4,2)];
         }
       break;
     
     case 'HSV':
-      console.log('with HSV type');
-      console.log('NOT IMPLEMENTED');
+      console.log(`sanitizing ${input} with HSV type`);
+      throw new Error('Not implemented');
       break;
 
     default:
-      console.log('type not detected');
+      throw new Error('color type not found when sanitizing')
   }
   
   color.asTriplet = asTriplet;
@@ -88,34 +108,45 @@ function sanitizeColorFromInput(type, input) {
 }
 
 function outputAllColorFormats(color) {
-  console.log('\n');
+  let rgb1Color;
+  let rgb255Color;
+  let hexColor;
+  let hsvColor;
   switch (color.type) {
     case 'RGB1':
+      throw new Error('Not implemented');
       break;
 
     case 'RGB255':
+      rgb1Color = allFactories.RGB1(floatPrecision).fromRGB255(color.r, color.g, color.b)
+      outputAllRgb1(rgb1Color);
+
       break;
 
     case 'HEX':
-      console.log("RGB1:\n")
+      rgb1Color = allFactories.RGB1(floatPrecision).fromHEX(color.hexValue);
+      outputAllRgb1(rgb1Color);
 
-      allFactories(4).forEach( (factory) => {
-        console.log("-> "+ factory);
-        factory();
-      })
-
-      console.log("\n\n")
       break;
 
     case 'HSV':
+      console.log('WIP');
       break;
-
+      
     default:
-      break;
+      throw new Error('color type not found when outputting');
   }
 }
 
-function outputRGB(color, separator) {
+function outputAllRgb1(color) {
+  console.log("\nRGB1:")
+  outputSingleRGB(color, ' ');
+  console.log('or');
+  outputSingleRGB(color, ', ');
+  console.log("\n\n")
+}
+
+function outputSingleRGB(color, separator) {
   console.log(`${color.r}${separator}${color.g}${separator}${color.b}`)
 }
 
