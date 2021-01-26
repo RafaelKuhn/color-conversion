@@ -1,7 +1,6 @@
 const { exit }  = require("process");
 const readline  = require("readline");
-
-const ColorFactory = require("./color_factory.js");
+const { ColorTypes, allFactories, RGB1, RGB255, HEX, HSV } = require("./color_factory.js");
 
 const reader = readline.createInterface({
   input: process.stdin,
@@ -15,15 +14,9 @@ const inputColorFormatString = `\nselect color input format\n
   [3] -> HEX      '#7707F7' or '7707F7'
   [4] -> HSV      ('100, 100, 100)'\n\n   `;
 
-const colorTypes = [
-  'RGB 1',
-  'RGB 255',
-  'HEX',
-  'HSV'
-]
 
 function inputColorString(formatIndex) {
-    return(`\ninput color with format ${colorTypes[formatIndex]}\n\n   `
+    return(`\ninput color with format ${ColorTypes[formatIndex]}\n\n   `
   );
 } 
 
@@ -36,7 +29,7 @@ function askForColor() {
     
     colorTypeIndex = parseInt(colorTypeIndex);
     colorTypeIndex--;
-    const colorType = getColorTypeString(colorTypeIndex);
+    const colorType = ColorTypes[colorTypeIndex];
     if (!colorType) {
       console.log('wrong color type informed');
       exit();
@@ -45,24 +38,11 @@ function askForColor() {
     reader.question(inputColorString(colorTypeIndex), function(input) {
       reader.close();
       const color = sanitizeColorFromInput(colorType, input);
+
+
       outputAllColorFormats(color);
     });
   });
-}
-
-function getColorTypeString(index) {
-  switch (index) {
-    case 0:
-      return 'RGB1';
-    case 1:
-      return 'RGB255';
-    case 2:
-      return 'HEX';
-    case 3:
-      return 'HSV';
-    default:
-      return null;
-  }
 }
 
 function sanitizeColorFromInput(type, input) {
@@ -119,9 +99,10 @@ function outputAllColorFormats(color) {
     case 'HEX':
       console.log("RGB1:\n")
 
-      const rgb1 = ColorFactory.RGB1(4).fromHEX(color.hex);
-      outputRGB(rgb1, ' ');
-      outputRGB(rgb1, ', ');
+      allFactories(4).forEach( (factory) => {
+        console.log("-> "+ factory);
+        factory();
+      })
 
       console.log("\n\n")
       break;

@@ -1,77 +1,28 @@
-function rgb1Factory(floatingPointPrecision) {
-  const color = {};
+const { rgb1Factory } = require("./rgb1_factory");
+const { rgb255Factory } = require("./rgb255_factory");
+const { hexFactory } = require("./hex_factory");
+const { hsvFactory } = require("./hsv_factory");
 
-  /**
-   * 
-   * @param {number} r 
-   * @param {number} g 
-   * @param {number} b 
-   */
-  function fromRGB(r, g, b) {
-    const rgb1Color = {};
-    
-    rgb1Color.r = (r / 255).toFixed(floatingPointPrecision); 
-    rgb1Color.g = (g / 255).toFixed(floatingPointPrecision);
-    rgb1Color.b = (b / 255).toFixed(floatingPointPrecision);
-    
-    return rgb1Color;
-  }
+const colorTypesEnum = [ 'RGB1', 'RGB255', 'HEX', 'HSV' ];
 
-  function fromHEX(input) {
-    const r = parseInt(input.substr(0,2), 16);
-    const g = parseInt(input.substr(2,2), 16);
-    const b = parseInt(input.substr(4,2), 16);
+function allFactories(floatPrecision) {
+  const factories = [];
 
-    return fromRGB(r, g, b);
-  }
-  
-  color.fromRGB255 = fromRGB;
-  color.fromHEX = fromHEX;
-  return color;
+  factories.push(
+    function() { rgb1Factory(floatPrecision) },
+    function() { rgb255Factory() },
+    function() { hexFactory() },
+    function() { hsvFactory() }
+  )
+
+  return factories;
 }
 
-function rgb255Factory(rgb1Color) {
-  console.log("2");
-}
-
-function hexFactory(type, color) {
-  console.log("3");
-}
-
-function hsvFactory(type, color) {
-  console.log("4");
-}
-
-/*
-function getAsRgb1(colorType) {
-  response = {};
-  switch (colorType) {
-    case 0:
-      response.rgb1value = 'aa';
-      break;
-    case 1:
-      response.literal = 'rgb1';
-      break;
-    case 2:
-      response.literal = 'hex';
-      break;
-    case 3:
-      response.literal = 'hsv';
-      break;
-  }
-} 
-
-
-
-
-
-/**/
-
-
-
-module.exports = { 
-    RGB1: rgb1Factory,
-    RGB255: rgb255Factory,
-    HEX: hexFactory,
-    HSV: hsvFactory
+module.exports = {
+  ColorTypes: colorTypesEnum,
+  allFactories: allFactories,
+  RGB1: rgb1Factory,
+  RGB255: rgb255Factory,
+  HEX: hexFactory,
+  HSV: hsvFactory
 }
