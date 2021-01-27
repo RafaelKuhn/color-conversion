@@ -1,7 +1,7 @@
 const { exit }  = require("process");
 const readline  = require("readline");
 
-const { ColorTypes, allFactories } = require("../color-factories/color_factory");
+const { ColorTypes, Convert } = require("../color-factories/color_factory");
 
 const reader = readline.createInterface({
   input: process.stdin,
@@ -138,17 +138,17 @@ function outputAllColorFormats(color) {
       break;
 
     case 'RGB255':
-      rgb1Color = allFactories.RGB1(floatPrecision).fromRGB255(color.r, color.g, color.b)
+      rgb1Color = Convert.RGB1(floatPrecision).fromRGB255(color.r, color.g, color.b)
 
       break;
 
     case 'HEX':
-      rgb1Color = allFactories.RGB1(floatPrecision).fromHEX(color.hexValue);
+      rgb1Color = Convert.RGB1(floatPrecision).fromHEX(color.hexValue);
 
       break;
 
     case 'HSV':
-      rgb1Color = allFactories.RGB1(floatPrecision).fromHSV(color.h, color.s, color.v );
+      rgb1Color = Convert.RGB1(floatPrecision).fromHSV(color.h, color.s, color.v );
       
 
       break;
