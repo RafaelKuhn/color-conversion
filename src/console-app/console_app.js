@@ -1,6 +1,7 @@
 const { exit }  = require("process");
 const readline  = require("readline");
-const { ColorTypes, allFactories } = require("./color_factory.js");
+
+const { ColorTypes, allFactories } = require("../color-factories/color_factory");
 
 const reader = readline.createInterface({
   input: process.stdin,
@@ -172,6 +173,6 @@ function outputSingleRGB(color, separator) {
   console.log(`${color.r}${separator}${color.g}${separator}${color.b}`)
 }
 
-module.exports = { askForColor };
+module.exports = { startConsoleApp: askForColor };
 
 /* */
