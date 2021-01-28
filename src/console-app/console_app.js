@@ -1,21 +1,36 @@
-const { exit }  = require("process");
-const readline  = require("readline");
+const readline  = require("readline-sync");
+const validator = require('../lib/utils/input-validator');
+const sanitizer = require('../lib/utils/input-sanitizer');
+
 const { ColorTypes, ColorMaker } = require("../lib/color-factories/color_factories");
-
-const reader = readline.createInterface({ input: process.stdin, output: process.stdout });
-
-const inputColorFormatString = `\n[prompt] select color input format\n
-     <format>    |                      <example input>                      |
-_________________|___________________________________________________________|
-  [1] -> RGB 1   | 0.46, 0.02, 0.96  or  0.46,0.02,0.96  or  0.46 0.02 0.96  |
-  [2] -> RGB 255 |    119, 7, 247    or     119,7,247    or     119 7 247    |
-  [3] -> HEX     |      #7707F7      or       7707F7                         |
-  [4] -> HSV/HSB |   360, 100, 100   or                                      |\n
-   `;
 
 const floatPrecision = 2; // TODO: prompt user for float precision on decimals
 
-function askForColor() {
+const validationFunctions = {
+  RGB1: validator.validateRgb1,
+  RGB255: validator.validateRgb255,
+  HEX: validator.validateHex,
+  HSV: validator.validateHsv
+}
+
+const sanitizationFunctions = {
+  RGB1: sanitizer.sanitizeRgb1,
+  RGB255: sanitizer.sanitizeRgb255,
+  HEX: sanitizer.sanitizeHex,
+  HSV: sanitizer.sanitizeHsv
+}
+
+
+function startConsoleApp() {
+  const colorType = askForColorType();
+
+  const colorInput = askForColorInput(colorType);
+
+  const sanitizedColor = sanitizeColorInput(colorInput, colorType);
+
+  outputAllColorFormats(sanitizedColor)
+
+  /*
   reader.question(inputColorFormatString, function(colorTypeIndex) {
     validateColorTypeInput(colorTypeIndex);
     
@@ -28,13 +43,71 @@ function askForColor() {
 
       outputAllColorFormats(inputColor);
     });
-  });
+  }); /* */
 }
 
-function validateColorTypeInput(colorTypeIndex) {
+function askForColorType() {
+  const rawColorType = readline.question(
+`\n[prompt] select color input format\n
+     <format>    
+_________________
+  [1] -> RGB 1 
+  [2] -> RGB 255 
+  [3] -> HEX
+  [4] -> HSV/HSB
+
+   `);
+
+  validateColorTypeIndex(rawColorType);
+
+  const colorType = getColorTypeFromIndex(rawColorType);
+
+  return colorType;
+}
+
+function askForColorInput(colorType) {
+  const placeHolders = getPlaceHolderArray(colorType);
+  const rawColor = readline.question(`
+ <format>  |                      <example input>                      |
+___________|___________________________________________________________|
+${placeHolders.rgb1} RGB 1   | 0.46, 0.02, 0.96  or  0.46,0.02,0.96  or  0.46 0.02 0.96  |
+${placeHolders.rgb255} RGB 255 |    119, 7, 247    or     119,7,247    or     119 7 247    |
+${placeHolders.hex} HEX     |      #7707F7      or       7707F7                         |
+${placeHolders.hsv} HSV/HSB |   360, 100, 100   or                                      |
+
+   `);
+  
+  validateColorInput(rawColor, colorType);
+  return rawColor;
+}
+
+function getPlaceHolderArray(colorType) {
+  const doubleSpace = '  ';
+  const arrow = '->';
+
+  const placeHolders = {
+    rgb1: colorType == ColorTypes[0] ? arrow : doubleSpace,
+    rgb255: colorType == ColorTypes[1] ? arrow : doubleSpace,
+    hex: colorType == ColorTypes[2] ? arrow : doubleSpace,
+    hsv: colorType == ColorTypes[3] ? arrow : doubleSpace,
+  }
+
+  return placeHolders;
+}
+
+function validateColorTypeIndex(colorTypeIndex) {
   if (isNaN(colorTypeIndex) || !colorTypeIndex) {
     throw Error('input is not a number!');
   }
+}
+
+function validateColorInput(colorInput, colorType) {
+  const validationFunction = validationFunctions[colorType];
+  
+  console.log(`\n[prompt] validating ${colorInput} with function`);
+  console.log(validationFunction);
+  
+  validationFunction(colorInput);
 }
 
 function getColorTypeFromIndex(colorTypeIndex) {
@@ -48,7 +121,18 @@ function getColorTypeFromIndex(colorTypeIndex) {
   return colorType;
 }
 
-function sanitizeColorFromInput(type, input) {
+function sanitizeColorInput(rawColor, colorType) {
+  const sanitizationFunction = sanitizationFunctions[colorType];
+  
+  console.log(`\n[prompt] sanitizing ${rawColor} with function`);
+  console.log(sanitizationFunction);
+
+  /* refactor this */ return sanitizeColorFromInput(rawColor, colorType);
+  return sanitizationFunction();
+}
+
+// REFACTOR BELOW
+function sanitizeColorFromInput(input, type) {
   console.log('\n');
   console.log(`[prompt] sanitizing ${input} with ${type} type\n`);
   
@@ -90,6 +174,7 @@ function sanitizeColorFromInput(type, input) {
   console.log(colorObject);
   return colorObject;
 }
+// REFACTOR ABOVE
 
 function sanitizeRGB(input) {
   input.trim();
@@ -221,6 +306,6 @@ function outputAllHex(hexColor) {
   console.log(`#${hexColor.hexValue}`);
 }
 
-module.exports = { startConsoleApp: askForColor };
+module.exports = { startConsoleApp };
 
 /* */
