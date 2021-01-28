@@ -1,4 +1,4 @@
-const { hsvToRgb1, hexToRgb255 } = require('./common_operations');
+const { hsvToRgb1, hexToRgb255 } = require('./color_operations');
 
 /**
  * this will create an empty rgb1 color object, can be initialized with 'from' methods

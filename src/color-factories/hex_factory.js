@@ -1,4 +1,4 @@
-const { hsvToRgb1 } = require('./common_operations');
+const { hsvToRgb1 } = require('./color_operations');
 
 function hexFactory() {
   const hexColor = { type: 'HEX', hexValue: '' }
