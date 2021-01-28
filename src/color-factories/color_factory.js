@@ -8,9 +8,9 @@ const colorTypesEnum = [ 'RGB1', 'RGB255', 'HEX', 'HSV' ];
 module.exports = {
   ColorTypes: colorTypesEnum,
   Convert: {
-    RGB1: rgb1Factory,
-    RGB255: rgb255Factory,
-    HEX: hexFactory,
-    HSV: hsvFactory
+    toRGB1: rgb1Factory,
+    toRGB255: rgb255Factory,
+    toHEX: hexFactory,
+    toHSV: hsvFactory
   }
 }

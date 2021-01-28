@@ -1,12 +1,8 @@
 const { exit }  = require("process");
 const readline  = require("readline");
-
 const { ColorTypes, Convert } = require("../color-factories/color_factory");
 
-const reader = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
+const reader = readline.createInterface({ input: process.stdin, output: process.stdout });
 
 const inputColorFormatString = `\n[prompt] select color input format\n
      <format>    |                      <example input>                      |
@@ -15,8 +11,7 @@ _________________|___________________________________________________________|
   [2] -> RGB 255 |    119, 7, 247    or     119,7,247    or     119 7 247    |
   [3] -> HEX     |      #7707F7      or       7707F7                         |
   [4] -> HSV/HSB |   360, 100, 100   or                                      |\n
-   `
-;
+   `;
 
 const floatPrecision = 2;
 
@@ -50,52 +45,24 @@ function askForColor() {
 }
 
 function sanitizeColorFromInput(type, input) {
-  input = input.trim();
-  const color = {};
-  color.type = type;
-
-  let asTriplet = function() { console.log(`'asTriplet' has no function assigned`);}
-
   console.log('\n');
-  let splitInput;
+  console.log(`[prompt] sanitizing ${input} with ${type} type\n`);
+  
+  let colorObject = { type };
   switch (type) {
     case 'RGB1':
     case 'RGB255':
-      promptSanitizing(input, type);
-      input.trim();
-      if (input.includes(', ')) {
-        splitInput =  input.split(', ');
-      } else if (input.includes(',')) {
-        splitInput =  input.split(',');
-      } else if (input.includes(' ')) {
-        splitInput =  input.split(' ');
-      } else {
-        console.log(`input ${input} does not contain separators <, > <,> or < >`);
-      }
-      
-      color.r = splitInput[0];
-      color.g = splitInput[1];
-      color.b = splitInput[2];  
-      asTriplet = function () {
-        return [color.r, color.g, color.b];
-      }
+      const rgbSanitized = sanitizeRGB(input);
+      colorObject = { ...colorObject, ...rgbSanitized };
       break;
       
     case 'HEX':
-      promptSanitizing(input, type);
-      input.trim();
-      if (input.includes('#')) {
-        input = input.substr(1, 6);
-      }
-        
-      color.hexValue = input;
-      asTriplet = function () {
-        return [input.substr(0,2), input.substr(2,2), input.substr(4,2)];
-      }
+      const hexSanitized = sanitizeHex(input);
+      colorObject = { ...colorObject, ...hexSanitized };
+      
       break;
     
     case 'HSV':
-      promptSanitizing(input, type);
       input.trim();
       if (input.includes(', ')) {
         splitInput =  input.split(', ');
@@ -107,48 +74,114 @@ function sanitizeColorFromInput(type, input) {
         console.log(`input ${input} does not contain separators <, > <,> or < >`);
       }
 
-      color.h = splitInput[0];
-      color.s = splitInput[1];
-      color.v = splitInput[2];
-      asTriplet = function () {
-        return [color.h, color.s, color.v];
-      }
+      colorObject.h = splitInput[0];
+      colorObject.s = splitInput[1];
+      colorObject.v = splitInput[2];
       break;
 
     default:
       throw new Error('color type not found when sanitizing')
   }
 
-  color.asTriplet = asTriplet;
-  return color;
+  console.log(colorObject);
+  return colorObject;
 }
-function promptSanitizing(input, colorType) {
-  console.log(`[prompt] sanitizing ${input} with ${colorType} type`);
+
+function sanitizeRGB(input) {
+  input.trim();
+  let splitInput;
+  if (input.includes(', ')) {
+    splitInput =  input.split(', ');
+  } else if (input.includes(',')) {
+    splitInput =  input.split(',');
+  } else if (input.includes(' ')) {
+    splitInput =  input.split(' ');
+  } else {
+    console.log(`input ${input} does not contain separators <, > <,> or < >`);
+  }
+  
+  let r = splitInput[0];
+  let g = splitInput[1];
+  let b = splitInput[2];
+
+  return {r, g, b};
+}
+
+function sanitizeHex(input) {
+  input.trim();
+  
+  if (input.includes(' ')) {
+    throw new Error('spaces not allowed in hexadecimal color format');
+  }
+
+  let hexValue;
+  if (input.includes('#')) {
+    hexValue = getHexValueWithHash(input);
+  } else {
+    hexValue = getHexValueWithoutHash(input);
+  }
+
+  return { hexValue }
+}
+
+function getHexValueWithHash(input) {
+  maxLength = 7;
+  if (input.length < maxLength) {
+    throw new Error('input is too small for hexadecimal format');
+  }
+  if (input.length > maxLength) {
+    throw new Error('input is too big for hexadecimal format');
+  }
+
+  input = input.substr(1, 6);
+  checkIfMatchesHexRegex(input);
+  
+  return input;
+}
+
+function getHexValueWithoutHash(input) {
+  const maxLength = 6;
+  if (input.length < maxLength) {
+    throw new Error('input is too small for hexadecimal format');
+  }
+  if (input.length > maxLength) {
+    throw new Error('input is too big for hexadecimal format');
+  }
+
+  checkIfMatchesHexRegex(input);
+
+  return input;
+}
+
+function checkIfMatchesHexRegex(input) {
+  const hexRegex = /^[0-9a-fA-F]+/;
+  
+  if (!hexRegex.test(input)) {
+    throw new Error('input has invalid characters');
+  }
 }
 
 function outputAllColorFormats(color) {
-  let rgb1Color;
-  let rgb255Color;
-  let hexColor;
-  let hsvColor;
+  let rgb1Color, rgb255Color, hexColor, hsvColor;
+
   switch (color.type) {
     case 'RGB1':
       rgb1Color = color;
-      
+      hexColor = Convert.toHEX.fromRGB(color.r, color.g, color.b);
       break;
 
     case 'RGB255':
-      rgb1Color = Convert.RGB1(floatPrecision).fromRGB255(color.r, color.g, color.b)
+      rgb1Color = Convert.toRGB1(floatPrecision).fromRGB255(color.r, color.g, color.b)
 
       break;
 
     case 'HEX':
-      rgb1Color = Convert.RGB1(floatPrecision).fromHEX(color.hexValue);
+      rgb1Color = Convert.toRGB1(floatPrecision).fromHEX(color.hexValue);
 
       break;
 
     case 'HSV':
-      rgb1Color = Convert.RGB1(floatPrecision).fromHSV(color.h, color.s, color.v );
+      rgb1Color = Convert.toRGB1(floatPrecision).fromHSV(color.h, color.s, color.v );
       
 
       break;
@@ -156,9 +189,10 @@ function outputAllColorFormats(color) {
     default:
       throw new Error('color type not found when outputting');
   }
+
   // TODO: check if user wants to output a json file or just graphically
   outputAllRgb1(rgb1Color);
-
+  outputAllHex(hexColor)
 }
 
 function outputAllRgb1(color) {
@@ -166,11 +200,17 @@ function outputAllRgb1(color) {
   outputSingleRGB(color, ' ');
   console.log('or');
   outputSingleRGB(color, ', ');
-  console.log("\n\n")
 }
 
 function outputSingleRGB(color, separator) {
   console.log(`${color.r}${separator}${color.g}${separator}${color.b}`)
+}
+
+function outputAllHex(hexColor) {
+  console.log("\nHEX:")
+  console.log(hexColor);
+  console.log('or');
+  console.log(`#${hexColor}`);
 }
 
 module.exports = { startConsoleApp: askForColor };
