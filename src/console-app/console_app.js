@@ -1,6 +1,6 @@
 const { exit }  = require("process");
 const readline  = require("readline");
-const { ColorTypes, Convert } = require("../color-factories/color_factory");
+const { ColorTypes, ColorMaker } = require("../color-factories/color_factories");
 
 const reader = readline.createInterface({ input: process.stdin, output: process.stdout });
 
@@ -159,7 +159,7 @@ function checkIfMatchesHexRegex(input) {
   if (!hexRegex.test(input)) {
     throw new Error('input has invalid characters');
   }
-}
+} // TODO this and all 'sanitizers' must be inside commons and be checked every hex conversion
 
 function outputAllColorFormats(color) {
   let rgb1Color, rgb255Color, hexColor, hsvColor;
@@ -167,29 +167,33 @@ function outputAllColorFormats(color) {
   switch (color.type) {
     case 'RGB1':
       rgb1Color = color;
-      hexColor = Convert.toHEX.fromRGB(color.r, color.g, color.b);
+      
+      hexColor = ColorMaker.makeHEX().fromRGB1(color.r, color.g, color.b);
       break;
 
     case 'RGB255':
-      rgb1Color = Convert.toRGB1(floatPrecision).fromRGB255(color.r, color.g, color.b)
-
+      rgb1Color = ColorMaker.makeRGB1(floatPrecision).fromRGB255(color.r, color.g, color.b);
+      
+      hexColor = ColorMaker.makeHEX().fromRGB255(color.r, color.g, color.b);
       break;
 
     case 'HEX':
-      rgb1Color = Convert.toRGB1(floatPrecision).fromHEX(color.hexValue);
+      rgb1Color = ColorMaker.makeRGB1(floatPrecision).fromHEX(color.hexValue);
 
+      hexColor = color;
       break;
 
     case 'HSV':
-      rgb1Color = Convert.toRGB1(floatPrecision).fromHSV(color.h, color.s, color.v );
+      rgb1Color = ColorMaker.makeRGB1(floatPrecision).fromHSV(color.h, color.s, color.v );
       
-
+      hexColor = ColorMaker.makeHEX().fromHSV(color.h, color.s, color.v);
       break;
       
     default:
       throw new Error('color type not found when outputting');
   }
 
+  console.log('\n\n[prompt] output:')
   // TODO: check if user wants to output a json file or just graphically
   outputAllRgb1(rgb1Color);
   outputAllHex(hexColor)
@@ -208,9 +212,9 @@ function outputSingleRGB(color, separator) {
 
 function outputAllHex(hexColor) {
   console.log("\nHEX:")
-  console.log(hexColor);
+  console.log(hexColor.hexValue);
   console.log('or');
-  console.log(`#${hexColor}`);
+  console.log(`#${hexColor.hexValue}`);
 }
 
 module.exports = { startConsoleApp: askForColor };
