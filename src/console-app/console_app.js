@@ -1,6 +1,6 @@
 const { exit }  = require("process");
 const readline  = require("readline");
-const { ColorTypes, ColorMaker } = require("../color-factories/color_factories");
+const { ColorTypes, ColorMaker } = require("../lib/color-factories/color_factories");
 
 const reader = readline.createInterface({ input: process.stdin, output: process.stdout });
 
@@ -13,35 +13,39 @@ _________________|___________________________________________________________|
   [4] -> HSV/HSB |   360, 100, 100   or                                      |\n
    `;
 
-const floatPrecision = 2;
-
-function inputColorString(formatIndex) {
-    return(`\n[prompt] input color with format ${ColorTypes[formatIndex]}\n\n   `
-  );
-} 
+const floatPrecision = 2; // TODO: prompt user for float precision on decimals
 
 function askForColor() {
   reader.question(inputColorFormatString, function(colorTypeIndex) {
-    if (isNaN(colorTypeIndex) || !colorTypeIndex) {
-     console.log("is not a number!");
-     exit();
-    }
+    validateColorTypeInput(colorTypeIndex);
     
-    colorTypeIndex = parseInt(colorTypeIndex);
-    colorTypeIndex--;
-    const colorType = ColorTypes[colorTypeIndex];
-    if (!colorType) {
-      console.log('wrong color type informed');
-      exit();
-    }
+    const colorType = getColorTypeFromIndex(colorTypeIndex);
     
-    reader.question(inputColorString(colorTypeIndex), function(input) {
+    const inputColorString = `\n[prompt] input color with format ${colorType}\n\n   `
+    reader.question(inputColorString, function(input) {
       reader.close();
       const inputColor = sanitizeColorFromInput(colorType, input);
 
       outputAllColorFormats(inputColor);
     });
   });
+}
+
+function validateColorTypeInput(colorTypeIndex) {
+  if (isNaN(colorTypeIndex) || !colorTypeIndex) {
+    throw Error('input is not a number!');
+  }
+}
+
+function getColorTypeFromIndex(colorTypeIndex) {
+  colorTypeIndex = parseInt(colorTypeIndex);
+  colorTypeIndex--;
+  const colorType = ColorTypes[colorTypeIndex];
+  if (!colorType) {
+    throw Error('wrong color type informed');
+  }
+
+  return colorType;
 }
 
 function sanitizeColorFromInput(type, input) {
