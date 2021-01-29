@@ -3,13 +3,13 @@
 function sanitizeRgb1(rawInput) {
   const rgbSanitized = sanitizeAnyRgb(rawInput);
   
-  return rgbSanitized;
+  return { type: 'RGB1', ...rgbSanitized };
 }
 
 function sanitizeRgb255(rawInput) {
   const rgbSanitized = sanitizeAnyRgb(rawInput);
   
-  return rgbSanitized;
+  return { type: 'RGB255', ...rgbSanitized };
 }
 
 function sanitizeHex(rawInput) {
@@ -20,7 +20,7 @@ function sanitizeHex(rawInput) {
   } else {
     hexValue = trimmedInput.substr(0, 6);
   }
-  return { hexValue }
+  return { type: 'HEX', hexValue }
 }
 
 function sanitizeHsv(rawInput) {
@@ -30,7 +30,7 @@ function sanitizeHsv(rawInput) {
   const s = trimmedInput[1];
   const v = trimmedInput[2];
 
-  return { h, s, v };
+  return {  type: 'HSV', h, s, v };
 }
 
 function sanitizeAnyRgb(rgbRawInput) {

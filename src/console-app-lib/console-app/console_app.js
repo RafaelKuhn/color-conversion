@@ -4,7 +4,7 @@ const sanitizer = require('./input-sanitizer');
 
 const { ColorTypes, ColorMaker } = require("../../lib/color-factories/color_factories");
 
-const floatPrecision = 2; // TODO: prompt user for float precision on decimals
+const floatPrecision = 3; // TODO: prompt user for float precision on decimals
 
 const validationFunctions = {
   RGB1: validator.validateRgb1,
@@ -20,7 +20,6 @@ const sanitizationFunctions = {
   HSV: sanitizer.sanitizeHsv
 }
 
-
 function startConsoleApp() {
   const colorType = askForColorType();
 
@@ -29,21 +28,6 @@ function startConsoleApp() {
   const sanitizedColor = sanitizeColorInput(colorInput, colorType);
 
   outputAllColorFormats(sanitizedColor);
-
-  /*
-  reader.question(inputColorFormatString, function(colorTypeIndex) {
-    validateColorTypeInput(colorTypeIndex);
-    
-    const colorType = getColorTypeFromIndex(colorTypeIndex);
-    
-    const inputColorString = `\n[prompt] input color with format ${colorType}\n\n   `
-    reader.question(inputColorString, function(input) {
-      reader.close();
-      const inputColor = sanitizeColorFromInput(colorType, input);
-
-      outputAllColorFormats(inputColor);
-    });
-  }); /* */
 }
 
 function askForColorType() {
@@ -81,6 +65,15 @@ ${placeHolders.hsv} HSV/HSB |   360, 100, 100   or                              
   return rawColor;
 }
 
+function sanitizeColorInput(rawColor, colorType) {
+  const sanitizationFunction = sanitizationFunctions[colorType];
+  
+  console.log(`\n[prompt] sanitizing ${rawColor} with function`);
+  console.log(sanitizationFunction);
+
+  return sanitizationFunction(rawColor);
+}
+
 function getPlaceHolderArray(colorType) {
   const doubleSpace = '  ';
   const arrow = '->';
@@ -101,6 +94,17 @@ function validateColorTypeIndex(colorTypeIndex) {
   }
 }
 
+function getColorTypeFromIndex(colorTypeIndex) {
+  colorTypeIndex = parseInt(colorTypeIndex);
+  colorTypeIndex--;
+  const colorType = ColorTypes[colorTypeIndex];
+  if (!colorType) {
+    throw Error('wrong color type informed');
+  }
+  
+  return colorType;
+}
+
 function validateColorInput(colorInput, colorType) {
   const validationFunction = validationFunctions[colorType];
   
@@ -110,140 +114,9 @@ function validateColorInput(colorInput, colorType) {
   validationFunction(colorInput);
 }
 
-function getColorTypeFromIndex(colorTypeIndex) {
-  colorTypeIndex = parseInt(colorTypeIndex);
-  colorTypeIndex--;
-  const colorType = ColorTypes[colorTypeIndex];
-  if (!colorType) {
-    throw Error('wrong color type informed');
-  }
-
-  return colorType;
-}
-
-function sanitizeColorInput(rawColor, colorType) {
-  const sanitizationFunction = sanitizationFunctions[colorType];
-  
-  console.log(`\n[prompt] sanitizing ${rawColor} with function`);
-  console.log(sanitizationFunction);
-
-  return sanitizationFunction(rawColor);
-}
 
 
-
-// REFACTOR BELOW
-function sanitizeColorFromInput(input, type) {
-  console.log('\n');
-  console.log(`[prompt] sanitizing ${input} with ${type} type\n`);
-  
-  let colorObject = { type };
-  switch (type) {
-    case 'RGB1':
-    case 'RGB255':
-      const rgbSanitized = sanitizeRGB(input);
-      colorObject = { ...colorObject, ...rgbSanitized };
-      break;
-      
-    case 'HEX':
-      const hexSanitized = sanitizeHex(input);
-      colorObject = { ...colorObject, ...hexSanitized };
-      
-      break;
-    
-    case 'HSV':
-      input.trim();
-      if (input.includes(', ')) {
-        splitInput =  input.split(', ');
-      } else if (input.includes(',')) {
-        splitInput =  input.split(',');
-      } else if (input.includes(' ')) {
-        splitInput =  input.split(' ');
-      } else {
-        console.log(`input ${input} does not contain separators <, > <,> or < >`);
-      }
-
-      colorObject.h = splitInput[0];
-      colorObject.s = splitInput[1];
-      colorObject.v = splitInput[2];
-      break;
-
-    default:
-      throw new Error('color type not found when sanitizing')
-  }
-
-  console.log(colorObject);
-  return colorObject;
-}
-
-
-function sanitizeRGB(input) {
-  input.trim();
-  let splitInput;
-  if (input.includes(', ')) {
-    splitInput =  input.split(', ');
-  } else if (input.includes(',')) {
-    splitInput =  input.split(',');
-  } else if (input.includes(' ')) {
-    splitInput =  input.split(' ');
-  } else {
-    console.log(`input ${input} does not contain separators <, > <,> or < >`);
-  }
-  
-  let r = splitInput[0];
-  let g = splitInput[1];
-  let b = splitInput[2];
-
-  return {r, g, b};
-}
-
-function sanitizeHex(input) {
-  input.trim();
-  
-  if (input.includes(' ')) {
-    throw new Error('spaces not allowed in hexadecimal color format');
-  }
-
-  let hexValue;
-  if (input.includes('#')) {
-    hexValue = getHexValueWithHash(input);
-  } else {
-    hexValue = getHexValueWithoutHash(input);
-  }
-
-  return { hexValue }
-}
-
-function getHexValueWithHash(input) {
-  maxLength = 7;
-  if (input.length < maxLength) {
-    throw Error('input is too small for hexadecimal format');
-  }
-  if (input.length > maxLength) {
-    throw Error('input is too big for hexadecimal format');
-  }
-
-  input = input.substr(1, 6);
-  checkIfMatchesHexRegex(input);
-  
-  return input;
-}
-
-function getHexValueWithoutHash(input) {
-  const maxLength = 6;
-  if (input.length < maxLength) {
-    throw Error('input is too small for hexadecimal format');
-  }
-  if (input.length > maxLength) {
-    throw Error('input is too big for hexadecimal format');
-  }
-
-  checkIfMatchesHexRegex(input);
-
-  return input;
-}
-// REFACTOR ABOVE
-
+// REFACTOR SHIT CODE BELOW
 function outputAllColorFormats(color) {
   let rgb1Color, rgb255Color, hexColor, hsvColor;
 
@@ -273,7 +146,7 @@ function outputAllColorFormats(color) {
       break;
       
     default:
-      throw new Error('color type not found when outputting');
+      throw Error('color type not found when outputting');
   }
 
   console.log('\n\n[prompt] output:')
