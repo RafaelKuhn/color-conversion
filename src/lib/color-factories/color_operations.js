@@ -42,8 +42,8 @@ function hexToRgb255(hexString) {
   const r = parseInt(hexString.substr(0,2), 16);
   const g = parseInt(hexString.substr(2,2), 16);
   const b = parseInt(hexString.substr(4,2), 16);
-  
-  return {r, g, b};
+
+  return { r, g, b };
 }
 
 module.exports = { hsvToRgb1, hexToRgb255 }
