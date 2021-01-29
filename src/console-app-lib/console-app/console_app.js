@@ -2,7 +2,7 @@ const readline  = require("readline-sync");
 const validator = require('./input-validator');
 const sanitizer = require('./input-sanitizer');
 
-const { ColorTypes, ColorMaker } = require("../../lib/color-factories/color_factories");
+const { ColorTypes, ColorMaker } = require("../../lib/color_maker");
 
 const floatPrecision = 3; // TODO: prompt user for float precision on decimals
 
@@ -19,6 +19,8 @@ const sanitizationFunctions = {
   HEX: sanitizer.sanitizeHex,
   HSV: sanitizer.sanitizeHsv
 }
+
+// TODO: constant to store makeCOLORNAME functions accessible by tag
 
 function startConsoleApp() {
   const colorType = askForColorType();
@@ -114,34 +116,37 @@ function validateColorInput(colorInput, colorType) {
   validationFunction(colorInput);
 }
 
-
-
-// REFACTOR SHIT CODE BELOW
+// TODO: check if user wants to output a json file or just graphically
+// TODO: REFACTOR ALL THIS SHIT CODE BELOW
 function outputAllColorFormats(color) {
   let rgb1Color, rgb255Color, hexColor, hsvColor;
 
   switch (color.type) {
     case 'RGB1':
       rgb1Color = color;
-      
+      rgb255Color = ColorMaker.makeRGB255().fromRGB1(color.r, color.g, color.b);
+
       hexColor = ColorMaker.makeHEX().fromRGB1(color.r, color.g, color.b);
       break;
 
     case 'RGB255':
       rgb1Color = ColorMaker.makeRGB1(floatPrecision).fromRGB255(color.r, color.g, color.b);
-      
+      rgb255Color = color;
+
       hexColor = ColorMaker.makeHEX().fromRGB255(color.r, color.g, color.b);
       break;
 
     case 'HEX':
       rgb1Color = ColorMaker.makeRGB1(floatPrecision).fromHEX(color.hexValue);
+      rgb255Color = ColorMaker.makeRGB255().fromHEX(color.hexValue);
 
       hexColor = color;
       break;
 
     case 'HSV':
       rgb1Color = ColorMaker.makeRGB1(floatPrecision).fromHSV(color.h, color.s, color.v );
-      
+      rgb255Color = ColorMaker.makeRGB255().fromHSV(color.h, color.s, color.v);
+
       hexColor = ColorMaker.makeHEX().fromHSV(color.h, color.s, color.v);
       break;
       
@@ -150,9 +155,11 @@ function outputAllColorFormats(color) {
   }
 
   console.log('\n\n[prompt] output:')
-  // TODO: check if user wants to output a json file or just graphically
+
+  
   outputAllRgb1(rgb1Color);
-  outputAllHex(hexColor)
+  outputAllRgb255(rgb255Color);
+  outputAllHex(hexColor);
 }
 
 function outputAllRgb1(color) {
@@ -162,8 +169,26 @@ function outputAllRgb1(color) {
   outputSingleRGB(color, ', ');
 }
 
+function outputAllRgb255(color) {
+  console.log("\nRGB255:")
+  outputSingleRGB(color, ' ');
+  console.log('or');
+  outputSingleRGB(color, ', ');
+}
+
+function outputAllHsv(color) {
+  console.log("\nHSV:")
+  outputSingleHSV(color, ' ');
+  console.log('or');
+  outputSingleHSV(color, ', ');
+}
+
 function outputSingleRGB(color, separator) {
   console.log(`${color.r}${separator}${color.g}${separator}${color.b}`)
+}
+
+function outputSingleHSV(color, separator) {
+  console.log(`${color.h}${separator}${color.s}${separator}${color.v}`)
 }
 
 function outputAllHex(hexColor) {
