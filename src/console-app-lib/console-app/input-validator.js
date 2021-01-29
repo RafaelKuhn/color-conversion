@@ -2,7 +2,7 @@
 
 function validateRgb1(rawInput) {
   validateColorWithSeparators(rawInput);
-
+  
 }
 
 function validateRgb255(rawInput) {
@@ -22,10 +22,10 @@ function validateHsv(rawInput) {
 
 function validateColorWithSeparators(rawColor) {
   rawColor.trim();
-  const hasValidRgbSeparator = input.includes(', ') || input.includes(',') || input.includes(' ');
+  const hasValidRgbSeparator = rawColor.includes(', ') || rawColor.includes(',') || rawColor.includes(' ');
   
   if (!hasValidRgbSeparator) {
-    throw Error('input does not contain valid rgb separator ", " "," or " " between values');
+    throw Error('input does not contain valid rgb separators ", " "," or " " between values');
   }
 }
 
@@ -58,13 +58,13 @@ function validateHexWithoutHash(hexString) {
   }
 }
 
-function validateHexCharacters(input) {
-  const hexRegex = /^[0-9a-fA-F]+/;
+function validateHexCharacters(hexString) {
+  const hexRegex = /^[0-9A-Fa-f]+$/;
   
-  if (!hexRegex.test(input)) {
-    console.log('deu ruim irmao');
+  const inputMatchesRegex = hexRegex.test(hexString);
+  if (!inputMatchesRegex) {
     throw Error('input has invalid characters');
-  } else { console.log('ué passou mano')}
+  }
 }
 
 module.exports = {

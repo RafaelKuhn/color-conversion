@@ -3,47 +3,62 @@
 function sanitizeRgb1(rawInput) {
   const rgbSanitized = sanitizeAnyRgb(rawInput);
   
-
+  return rgbSanitized;
 }
 
 function sanitizeRgb255(rawInput) {
   const rgbSanitized = sanitizeAnyRgb(rawInput);
   
+  return rgbSanitized;
 }
 
 function sanitizeHex(rawInput) {
-  input.trim();
+  const trimmedInput = rawInput.trim();
   let hexValue;
-  if (input.startsWith('#')) {
-    hexValue = rawInput.substr(1,6);
+  if (trimmedInput.startsWith('#')) {
+    hexValue = trimmedInput.substr(1, 6);
   } else {
-    hexValue = rawInput.substr(0, 6);
+    hexValue = trimmedInput.substr(0, 6);
   }
   return { hexValue }
 }
 
 function sanitizeHsv(rawInput) {
+  const trimmedInput = getSplitArrayOfNumbers(rawInput);
 
+  const h = trimmedInput[0];
+  const s = trimmedInput[1];
+  const v = trimmedInput[2];
+
+  return { h, s, v };
 }
 
 function sanitizeAnyRgb(rgbRawInput) {
-  input.trim();
-  let splitInput;
-  if (input.includes(', ')) {
-    splitInput = input.split(', ');
-  } else if (input.includes(',')) {
-    splitInput = input.split(',');
-  } else if (input.includes(' ')) {
-    splitInput = input.split(' ');
-  } else {
-    throw Error(`input ${input} does not contain separators <, > <,> or < >`);
-  }
-  
-  let r = splitInput[0];
-  let g = splitInput[1];
-  let b = splitInput[2];
+  const trimmedInput = rgbRawInput.trim();
+  let splitInput = getSplitArrayOfNumbers(trimmedInput);
+
+  const r = splitInput[0];
+  const g = splitInput[1];
+  const b = splitInput[2];
 
   return {r, g, b};
+}
+
+function getSplitArrayOfNumbers(rgbRawInput) {
+  let splitInput;
+  if (rgbRawInput.includes(', ')) {
+    splitInput = rgbRawInput.split(', ');
+  } else if (rgbRawInput.includes(',')) {
+    splitInput = rgbRawInput.split(',');
+  } else if (rgbRawInput.includes(' ')) {
+    splitInput = rgbRawInput.split(' ');
+  }
+
+  splitInput = splitInput.map( (stringElement) => { 
+    return Number(stringElement);
+  });
+
+  return splitInput;
 }
 
 module.exports = {
