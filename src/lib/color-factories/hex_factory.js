@@ -1,7 +1,7 @@
 const { hsvToRgb1 } = require('./color_operations');
 
 function hexFactory() {
-  const hexColor = { type: 'HEX', hexValue: '' }
+  const hexColor = { type: 'HEX', value: '' }
   /**
  * @param {number} r unitary value of red (0 - 1)
  * @param {number} g unitary value of green (0 - 1)
@@ -12,7 +12,7 @@ function hexFactory() {
     const hexG = Math.round(g * 255).toString(16);
     const hexB = Math.round(b * 255).toString(16);
     
-    hexColor.hexValue = hexStringFromRgbArray([hexR, hexG, hexB]);
+    hexColor.value = hexStringFromRgbArray([hexR, hexG, hexB]);
     
     return hexColor;
   }
@@ -27,7 +27,7 @@ function hexFactory() {
     const hexG = Math.round(g).toString(16);
     const hexB = Math.round(b).toString(16);
 
-    hexColor.hexValue = hexStringFromRgbArray([hexR, hexG, hexB]);
+    hexColor.value = hexStringFromRgbArray([hexR, hexG, hexB]);
     
     return hexColor;
   }
