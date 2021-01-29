@@ -1,8 +1,8 @@
 const readline  = require("readline-sync");
-const validator = require('../lib/utils/input-validator');
-const sanitizer = require('../lib/utils/input-sanitizer');
+const validator = require('./input-validator');
+const sanitizer = require('./input-sanitizer');
 
-const { ColorTypes, ColorMaker } = require("../lib/color-factories/color_factories");
+const { ColorTypes, ColorMaker } = require("../../lib/color-factories/color_factories");
 
 const floatPrecision = 2; // TODO: prompt user for float precision on decimals
 
@@ -28,7 +28,7 @@ function startConsoleApp() {
 
   const sanitizedColor = sanitizeColorInput(colorInput, colorType);
 
-  outputAllColorFormats(sanitizedColor)
+  outputAllColorFormats(sanitizedColor);
 
   /*
   reader.question(inputColorFormatString, function(colorTypeIndex) {
@@ -127,9 +127,10 @@ function sanitizeColorInput(rawColor, colorType) {
   console.log(`\n[prompt] sanitizing ${rawColor} with function`);
   console.log(sanitizationFunction);
 
-  /* refactor this */ return sanitizeColorFromInput(rawColor, colorType);
-  return sanitizationFunction();
+  return sanitizationFunction(rawColor);
 }
+
+
 
 // REFACTOR BELOW
 function sanitizeColorFromInput(input, type) {
@@ -174,7 +175,7 @@ function sanitizeColorFromInput(input, type) {
   console.log(colorObject);
   return colorObject;
 }
-// REFACTOR ABOVE
+
 
 function sanitizeRGB(input) {
   input.trim();
@@ -216,10 +217,10 @@ function sanitizeHex(input) {
 function getHexValueWithHash(input) {
   maxLength = 7;
   if (input.length < maxLength) {
-    throw new Error('input is too small for hexadecimal format');
+    throw Error('input is too small for hexadecimal format');
   }
   if (input.length > maxLength) {
-    throw new Error('input is too big for hexadecimal format');
+    throw Error('input is too big for hexadecimal format');
   }
 
   input = input.substr(1, 6);
@@ -231,24 +232,17 @@ function getHexValueWithHash(input) {
 function getHexValueWithoutHash(input) {
   const maxLength = 6;
   if (input.length < maxLength) {
-    throw new Error('input is too small for hexadecimal format');
+    throw Error('input is too small for hexadecimal format');
   }
   if (input.length > maxLength) {
-    throw new Error('input is too big for hexadecimal format');
+    throw Error('input is too big for hexadecimal format');
   }
 
   checkIfMatchesHexRegex(input);
 
   return input;
 }
-
-function checkIfMatchesHexRegex(input) {
-  const hexRegex = /^[0-9a-fA-F]+/;
-  
-  if (!hexRegex.test(input)) {
-    throw new Error('input has invalid characters');
-  }
-} // TODO this and all 'sanitizers' must be inside commons and be checked every hex conversion
+// REFACTOR ABOVE
 
 function outputAllColorFormats(color) {
   let rgb1Color, rgb255Color, hexColor, hsvColor;
