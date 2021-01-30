@@ -4,7 +4,7 @@ const sanitizer = require('./input-sanitizer');
 
 const { ColorTypes, ColorMaker } = require("../../lib/color_maker");
 
-const floatPrecision = 3; // TODO: prompt user for float precision on decimals
+const rgb1FloatPrecision = 3; // TODO: prompt user for float precision on decimals
 
 const validationFunctions = {
   RGB1: validator.validateRgb1,
@@ -20,7 +20,7 @@ const sanitizationFunctions = {
   HSV: sanitizer.sanitizeHsv
 }
 
-// TODO: constant to store makeCOLORNAME functions accessible by tag
+// TODO: object literal to store makeCOLORNAME functions accessible by tag
 
 function startConsoleApp() {
   const colorType = askForColorType();
@@ -51,15 +51,16 @@ _________________
   return colorType;
 }
 
+// TODO: 'getColorQuestionString' function to format better the input string
 function askForColorInput(colorType) {
-  const placeHolders = getPlaceHolderArray(colorType);
+  const placeHolders = getPlaceHoldersObject(colorType);
   const rawColor = readline.question(`
- <format>  |                      <example input>                      |
-___________|___________________________________________________________|
-${placeHolders.rgb1} RGB 1   | 0.46, 0.02, 0.96  or  0.46,0.02,0.96  or  0.46 0.02 0.96  |
-${placeHolders.rgb255} RGB 255 |    119, 7, 247    or     119,7,247    or     119 7 247    |
-${placeHolders.hex} HEX     |      #7707F7      or       7707F7                         |
-${placeHolders.hsv} HSV/HSB |   360, 100, 100   or                                      |
+ <format>  |            <example input>            |
+___________|_______________________________________|
+${placeHolders.rgb1} RGB 1   | 0.46, 0.02, 0.96  or  0.46 0.02 0.96  |
+${placeHolders.rgb255} RGB 255 |    119, 7, 247    or    119 7 247     |
+${placeHolders.hex} HEX     |      #7707F7      or      7707F7      |
+${placeHolders.hsv} HSV/HSB |  268, 97.2, 96.9  or  268 97.2 96.9   |
 
    `);
   
@@ -70,13 +71,13 @@ ${placeHolders.hsv} HSV/HSB |   360, 100, 100   or                              
 function sanitizeColorInput(rawColor, colorType) {
   const sanitizationFunction = sanitizationFunctions[colorType];
   
-  console.log(`\n[prompt] sanitizing ${rawColor} with function`);
+  console.log(`\n[prompt] sanitizing ${rawColor}`);
   console.log(sanitizationFunction);
 
   return sanitizationFunction(rawColor);
 }
 
-function getPlaceHolderArray(colorType) {
+function getPlaceHoldersObject(colorType) {
   const doubleSpace = '  ';
   const arrow = '->';
 
@@ -110,7 +111,7 @@ function getColorTypeFromIndex(colorTypeIndex) {
 function validateColorInput(colorInput, colorType) {
   const validationFunction = validationFunctions[colorType];
   
-  console.log(`\n[prompt] validating ${colorInput} with function`);
+  console.log(`\n[prompt] validating ${colorInput}`);
   console.log(validationFunction);
   
   validationFunction(colorInput);
@@ -121,32 +122,35 @@ function validateColorInput(colorInput, colorType) {
 function outputAllColorFormats(color) {
   let rgb1Color, rgb255Color, hexColor, hsvColor;
 
+  const rgb1FloatPrecision = 3;
+  const hsvFloatPrecision = 1;
+
   switch (color.type) {
     case 'RGB1':
       rgb1Color = color;
       rgb255Color = ColorMaker.makeRGB255().fromRGB1(color.r, color.g, color.b);
-
+      hsvColor = ColorMaker.makeHSV(hsvFloatPrecision).fromRGB1(color.r, color.g, color.b);
       hexColor = ColorMaker.makeHEX().fromRGB1(color.r, color.g, color.b);
       break;
 
     case 'RGB255':
-      rgb1Color = ColorMaker.makeRGB1(floatPrecision).fromRGB255(color.r, color.g, color.b);
+      rgb1Color = ColorMaker.makeRGB1(rgb1FloatPrecision).fromRGB255(color.r, color.g, color.b);
       rgb255Color = color;
-
+      hsvColor = ColorMaker.makeHSV(hsvFloatPrecision).fromRGB255(color.r, color.g, color.b);
       hexColor = ColorMaker.makeHEX().fromRGB255(color.r, color.g, color.b);
       break;
 
     case 'HEX':
-      rgb1Color = ColorMaker.makeRGB1(floatPrecision).fromHEX(color.hexValue);
+      rgb1Color = ColorMaker.makeRGB1(rgb1FloatPrecision).fromHEX(color.hexValue);
       rgb255Color = ColorMaker.makeRGB255().fromHEX(color.hexValue);
-
+      hsvColor = ColorMaker.makeHSV(hsvFloatPrecision).fromHEX(color.hexValue);
       hexColor = color;
       break;
 
     case 'HSV':
-      rgb1Color = ColorMaker.makeRGB1(floatPrecision).fromHSV(color.h, color.s, color.v );
+      rgb1Color = ColorMaker.makeRGB1(rgb1FloatPrecision).fromHSV(color.h, color.s, color.v );
       rgb255Color = ColorMaker.makeRGB255().fromHSV(color.h, color.s, color.v);
-
+      hsvColor = color;
       hexColor = ColorMaker.makeHEX().fromHSV(color.h, color.s, color.v);
       break;
       
@@ -154,12 +158,13 @@ function outputAllColorFormats(color) {
       throw Error('color type not found when outputting');
   }
 
-  console.log('\n\n[prompt] output:')
+  console.log('\n[prompt] output:')
 
   
   outputAllRgb1(rgb1Color);
   outputAllRgb255(rgb255Color);
   outputAllHex(hexColor);
+  outputAllHsv(hsvColor);
 }
 
 function outputAllRgb1(color) {
