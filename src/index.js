@@ -1,3 +1,3 @@
-const { startConsoleApp } = require("./console-app/console_app");
+const { startConsoleApp } = require("./console-app-lib/console-app/console_app");
 
 startConsoleApp();
