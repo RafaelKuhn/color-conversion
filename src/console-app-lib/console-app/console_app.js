@@ -4,8 +4,6 @@ const sanitizer = require('./input-sanitizer');
 
 const { ColorTypes, ColorMaker } = require("../../lib/color_maker");
 
-const rgb1FloatPrecision = 3; // TODO: prompt user for float precision on decimals
-
 const validationFunctions = {
   RGB1: validator.validateRgb1,
   RGB255: validator.validateRgb255,
