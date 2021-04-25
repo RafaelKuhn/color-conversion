@@ -173,7 +173,7 @@ function outputAllRgb1(color) {
 }
 
 function outputAllRgb255(color) {
-  console.log("\nRGB255:")
+  console.log("\nRGB255:");
   outputSingleRGB(color, ' ');
   console.log('or');
   outputSingleRGB(color, ', ');
@@ -195,11 +195,12 @@ function outputSingleHSV(color, separator) {
 }
 
 function outputAllHex(hexColor) {
-  console.log("\nHEX:")
-  console.log(hexColor.hexValue);
+  console.log("\nHEX:");
+  console.log(hexColor.value);
   console.log('or');
-  console.log(`#${hexColor.hexValue}`);
+  console.log(`#${hexColor.value}`);
 }
+
 
 module.exports = { startConsoleApp };
 
