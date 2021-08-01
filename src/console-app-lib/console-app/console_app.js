@@ -196,9 +196,9 @@ function outputSingleHSV(color, separator) {
 
 function outputAllHex(hexColor) {
   console.log("\nHEX:");
-  console.log(hexColor.value);
+  console.log(hexColor.hexValue);
   console.log('or');
-  console.log(`#${hexColor.value}`);
+  console.log(`#${hexColor.hexValue}`);
 }
 
 
