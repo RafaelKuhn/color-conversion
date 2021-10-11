@@ -8,9 +8,9 @@ function rgb1Factory(floatingPointPrecision = 4) {
   let rgb1Color = { type: 'RGB1', r: 0.0, g: 0.0, b: 0.0 };
 
   /**
-   * @param {number} r 8-byte value of red (0 - 255)
-   * @param {number} g 8-byte value of green (0 - 255)
-   * @param {number} b 8-byte value of blue (0 - 255)
+   * @param {number} r 8-bit integer value of red (0 - 255)
+   * @param {number} g 8-bit integer value of green (0 - 255)
+   * @param {number} b 8-bit integer value of blue (0 - 255)
    */
   function fromRGB255(r, g, b) {
     rgb1Values = {

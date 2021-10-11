@@ -1,3 +1,7 @@
 const { startConsoleApp } = require("./console-app-lib/console-app/console_app");
 
-startConsoleApp();
+if (require.main === module) {
+  startConsoleApp();
+} else {
+  module.exports = startConsoleApp;
+}

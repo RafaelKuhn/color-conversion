@@ -18,9 +18,9 @@ function hexFactory() {
   }
 
   /**
-   * @param {number} r 8-byte hexValue of red (0 - 255)
-   * @param {number} g 8-byte hexValue of green (0 - 255)
-   * @param {number} b 8-byte hexValue of blue (0 - 255)
+   * @param {number} r 8-bit integer hexValue of red (0 - 255)
+   * @param {number} g 8-bit integer hexValue of green (0 - 255)
+   * @param {number} b 8-bit integer hexValue of blue (0 - 255)
    */
   function fromRGB255(r, g, b) {
     const hexR = Math.round(r).toString(16);
