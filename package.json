@@ -1,7 +1,7 @@
 {
   "name": "@rafaelkuhn/color-conversion",
   "description": "small node.js console application to convert colors between different formats",
-  "version": "1.1.1",
+  "version": "1.1.3",
   "main": "src/index.js",
   "bin": {
     "color-conversion": "src/index.js"
