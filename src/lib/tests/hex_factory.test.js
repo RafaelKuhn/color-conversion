@@ -1,21 +1,21 @@
 const { hexFactory } = require("../color-factories/hex_factory");
 
 const hex = hexFactory();
-let hexColor;
+let color;
 
 test('from rgb1 works', () => {
-  hexColor = hex.fromRGB1(0.1, 0.1, 0.1);
-  expect(hexColor.value).toBe('1a1a1a');
+  color = hex.fromRGB1(0.1, 0.1, 0.1);
+  expect(color.hexValue).toBe('1a1a1a');
 })
 
 test('from rgb255 works', () => {
-  hexColor = hex.fromRGB255(119, 7, 247);
+  color = hex.fromRGB255(119, 7, 247);
   
-  expect(hexColor.value).toBe('7707f7');
+  expect(color.hexValue).toBe('7707f7');
 })
 
 test('from hsv works', () => {
-  hexColor = hex.fromHSV(360, 100, 100);
+  color = hex.fromHSV(360, 100, 100);
 
-  expect(hexColor.value).toBe('ff0000');
+  expect(color.hexValue).toBe('ff0000');
 })
